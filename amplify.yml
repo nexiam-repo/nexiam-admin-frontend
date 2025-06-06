@@ -4,7 +4,7 @@ frontend:
     preBuild:
       commands:
         - echo "Printing all env variables (sorted):"
-        - env | sort-
+        - env | sort
         - node --version
         - echo $ENVIRONMENT
         - echo "NODE_ENV is set to $NODE_ENV"
