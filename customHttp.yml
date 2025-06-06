@@ -1,0 +1,15 @@
+customHeaders:
+  - pattern: "**"
+    headers:
+      - key: "Strict-Transport-Security"
+        value: "max-age=31536000; includeSubDomains"
+      - key: "X-Frame-Options"
+        value: "SAMEORIGIN"
+      - key: "X-XSS-Protection"
+        value: "1; mode=block"
+      - key: "X-Content-Type-Options"
+        value: "nosniff"
+      - key: "Content-Security-Policy" # stricter rules in prod
+        value: "default-src 'self' data: blob:; script-src 'self' 'unsafe-eval' 'unsafe-inline' data: blob:; style-src 'self' 'unsafe-inline' data: blob:; img-src * data: blob:; font-src * data:; connect-src * ws: wss:;"
+# https://docs.aws.amazon.com/amplify/latest/userguide/setting-custom-headers.html
+# Explore Setting Cache-Control custom headers for production
