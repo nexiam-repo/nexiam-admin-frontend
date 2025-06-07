@@ -23,7 +23,7 @@ frontend:
           else
             echo "→ PROD build: keeping .env.production as-is"
           fi
-        - echo "AUTH_SECRET=${AUTH_SECRET}" >> .env.temp
+        - echo "AUTH_SECRET=${AUTH_SECRET}" >> .env.production
         - cat .env.production
     build:
       commands:
