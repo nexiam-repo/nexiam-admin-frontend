@@ -24,7 +24,9 @@ frontend:
             echo "→ PROD build: keeping .env.production as-is"
           fi
         - echo "AUTH_SECRET=${AUTH_SECRET}" >> .env.production
-        - cat .env.production
+        - echo "AUTH_SECRET=${AUTH_COGNITO_ID}" >> .env.production
+        - echo "AUTH_SECRET=${AUTH_COGNITO_SECRET}" >> .env.production
+        - echo "AUTH_SECRET=${AUTH_COGNITO_ISSUER}" >> .env.production
     build:
       commands:
         - echo "Starting build process..."
