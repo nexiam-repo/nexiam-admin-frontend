@@ -27,6 +27,7 @@ frontend:
         - echo "AUTH_COGNITO_ID=${AUTH_COGNITO_ID}" >> .env.production
         - echo "AUTH_COGNITO_SECRET=${AUTH_COGNITO_SECRET}" >> .env.production
         - echo "AUTH_COGNITO_ISSUER=${AUTH_COGNITO_ISSUER}" >> .env.production
+        - echo "AUTH_URL=https://admin.dev.nexiam.net" >> .env.production
         - echo "Secrets:$secrets"
     build:
       commands:
