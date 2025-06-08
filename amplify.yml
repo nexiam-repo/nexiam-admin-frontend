@@ -23,12 +23,11 @@ frontend:
           else
             echo "→ PROD build: keeping .env.production as-is"
           fi
-        - echo "AUTH_SECRET=${AUTH_SECRET}" >> .env.production
-        - echo "AUTH_COGNITO_ID=${AUTH_COGNITO_ID}" >> .env.production
-        - echo "AUTH_COGNITO_SECRET=${AUTH_COGNITO_SECRET}" >> .env.production
-        - echo "AUTH_COGNITO_ISSUER=${AUTH_COGNITO_ISSUER}" >> .env.production
-        - echo "AUTH_URL=https://admin.dev.nexiam.net" >> .env.production
-        - echo "Secrets:$secrets"
+        - echo "Fetching secrets from SSM..."
+        - echo "AUTH_SECRET=$(aws ssm get-parameter --name "/nexiam/frontend/admin/AUTH_SECRET" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
+        - echo "AUTH_COGNITO_ID=$(aws ssm get-parameter --name "/nexiam/frontend/admin/AUTH_COGNITO_ID" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
+        - echo "AUTH_COGNITO_SECRET=$(aws ssm get-parameter --name "/nexiam/frontend/admin/AUTH_COGNITO_SECRET" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
+        - echo "AUTH_COGNITO_ISSUER=$(aws ssm get-parameter --name "/nexiam/frontend/admin/AUTH_COGNITO_ISSUER" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
     build:
       commands:
         - echo "Starting build process..."

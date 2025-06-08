@@ -54,7 +54,6 @@ function NavUserComponent() {
   // Handles actual sign out
   const handleSignOut = async () => {
     const logoutUrl = await signOutAction();
-    console.log(logoutUrl);
     window.location.href = logoutUrl;
   };
 
