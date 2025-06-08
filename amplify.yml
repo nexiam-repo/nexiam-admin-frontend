@@ -3,35 +3,39 @@ frontend:
   phases:
     preBuild:
       commands:
-        - node --version
-        - echo $ENVIRONMENT
         - echo "NODE_ENV is set to $NODE_ENV"
         - node --version
-        - echo "Installing corepack and pnpm..."
-        - npm install --global corepack@latest
-        - corepack enable
-        - corepack prepare pnpm@latest-10 --activate
-        - pnpm config set store-dir ~/.pnpm-store
-        - pnpm store path
-        - pnpm install --frozen-lockfile
-        # if we're in dev, swap .env.production for .env.development
-        - echo "ENV is '$ENV'"
-        - |
-          if [ "$ENV" = "dev" ]; then
-            echo "→ DEV build: copying .env.development → .env.production"
-            cp .env.development .env.production
-          else
-            echo "→ PROD build: keeping .env.production as-is"
-          fi
-        - echo "Fetching secrets from SSM..."
-        - echo "AUTH_SECRET=$(aws ssm get-parameter --name "/nexiam/frontend/admin/AUTH_SECRET" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
-        - echo "AUTH_COGNITO_ID=$(aws ssm get-parameter --name "/nexiam/frontend/admin/AUTH_COGNITO_ID" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
-        - echo "AUTH_COGNITO_SECRET=$(aws ssm get-parameter --name "/nexiam/frontend/admin/AUTH_COGNITO_SECRET" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
-        - echo "AUTH_COGNITO_ISSUER=$(aws ssm get-parameter --name "/nexiam/frontend/admin/AUTH_COGNITO_ISSUER" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
+        - uname -a
+        - cat /etc/os-release || cat /etc/lsb-release
+        - which yum || echo "yum not found"
+        - which apt-get || echo "apt-get not found"
+        - which apk || echo "apk not found"
+        - which wget || echo "wget not found"
+    #     - echo "Installing corepack and pnpm..."
+    #     - npm install --global corepack@latest
+    #     - corepack enable
+    #     - corepack prepare pnpm@latest-10 --activate
+    #     - pnpm config set store-dir ~/.pnpm-store
+    #     - pnpm store path
+    #     - pnpm install --frozen-lockfile
+    #     # if we're in dev, swap .env.production for .env.development
+    #     - echo "ENV is '$ENV'"
+    #     - |
+    #       if [ "$ENV" = "dev" ]; then
+    #         echo "→ DEV build: copying .env.development → .env.production"
+    #         cp .env.development .env.production
+    #       else
+    #         echo "→ PROD build: keeping .env.production as-is"
+    #       fi
+    #     - echo "Fetching secrets from SSM..."
+    #     - echo "AUTH_SECRET=$(aws ssm get-parameter --name "/nexiam/frontend/admin/AUTH_SECRET" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
+    #     - echo "AUTH_COGNITO_ID=$(aws ssm get-parameter --name "/nexiam/frontend/admin/AUTH_COGNITO_ID" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
+    #     - echo "AUTH_COGNITO_SECRET=$(aws ssm get-parameter --name "/nexiam/frontend/admin/AUTH_COGNITO_SECRET" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
+    #     - echo "AUTH_COGNITO_ISSUER=$(aws ssm get-parameter --name "/nexiam/frontend/admin/AUTH_COGNITO_ISSUER" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
     build:
       commands:
         - echo "Starting build process..."
-        - pnpm run build
+        #- pnpm run build
         - echo "Build completed successfully."
     postBuild:
       commands:
