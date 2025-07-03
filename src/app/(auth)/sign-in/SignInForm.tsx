@@ -9,6 +9,13 @@ import z from 'zod';
 import { signInAction } from '@/app/actions/sign-in';
 import { Button } from '@/components/ui/button';
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
   Form,
   FormControl,
   FormField,
@@ -51,89 +58,97 @@ export function SignInForm() {
 
   return (
     <div className="bg-background flex min-h-screen w-full items-center justify-center">
-      <div className="w-full max-w-lg px-4 lg:max-w-sm xl:max-w-xl 2xl:max-w-2xl">
-        <div className="mb-6 text-center">
-          <h1 className="mb-2 text-3xl font-semibold">Admin Panel</h1>
-        </div>
-        {/* Divider */}
-        <div className="my-6 flex items-center">
-          <div className="border-muted flex-1 border-t" />
-          <span className="text-muted-foreground mx-3 text-sm">
-            Please sign in to continue.
-          </span>
-          <div className="border-muted flex-1 border-t" />
-        </div>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            {/* Email */}
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email*</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Email"
-                      type="email"
-                      autoComplete="email"
-                    />
-                  </FormControl>
-                  <div className="min-h-[20px] transition-all">
-                    <FormMessage />
-                  </div>
-                </FormItem>
-              )}
-            />
-            {/* Password */}
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password*</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Input
-                        {...field}
-                        placeholder="Password"
-                        type={showPassword ? 'text' : 'password'}
-                        autoComplete="current-password"
-                      />
-                      <button
-                        type="button"
-                        tabIndex={-1}
-                        onClick={() => setShowPassword((v) => !v)}
-                        className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400"
-                        aria-label={
-                          showPassword ? 'Hide password' : 'Show password'
-                        }
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-5 w-5" />
-                        ) : (
-                          <Eye className="h-5 w-5" />
-                        )}
-                      </button>
-                    </div>
-                  </FormControl>
-                  <div className="min-h-[20px]">
-                    <FormMessage />
-                  </div>
-                </FormItem>
-              )}
-            />
-            {/* Sign In Button */}
-            <Button
-              type="submit"
-              disabled={form.formState.isSubmitting || isPending}
-              className="mt-6 w-full py-6 text-lg"
-            >
-              {isPending ? 'Signing In...' : 'Sign In'}
-            </Button>
-          </form>
-        </Form>
+      <div className="w-full max-w-lg p-2 lg:max-w-sm xl:max-w-xl 2xl:max-w-2xl">
+        <Card className="px-2 py-12">
+          <CardHeader>
+            <div className="w-full text-center">
+              <CardTitle className="text-3xl">Nexiam Admin Panel</CardTitle>
+            </div>
+            <CardDescription>
+              <div className="my-6 flex items-center">
+                <div className="border-muted flex-1 border-t" />
+                <span className="text-muted-foreground mx-3 text-sm">
+                  Please sign in to continue.
+                </span>
+                <div className="border-muted flex-1 border-t" />
+              </div>
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)}>
+                {/* Email */}
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email*</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Email"
+                          type="email"
+                          autoComplete="email"
+                        />
+                      </FormControl>
+                      <div className="min-h-[20px] transition-all">
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                {/* Password */}
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password*</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            {...field}
+                            placeholder="Password"
+                            type={showPassword ? 'text' : 'password'}
+                            autoComplete="current-password"
+                          />
+                          <button
+                            type="button"
+                            tabIndex={-1}
+                            onClick={() => setShowPassword((v) => !v)}
+                            className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400"
+                            aria-label={
+                              showPassword ? 'Hide password' : 'Show password'
+                            }
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-5 w-5" />
+                            ) : (
+                              <Eye className="h-5 w-5" />
+                            )}
+                          </button>
+                        </div>
+                      </FormControl>
+                      <div className="min-h-[20px]">
+                        <FormMessage />
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                {/* Sign In Button */}
+                <Button
+                  type="submit"
+                  disabled={form.formState.isSubmitting || isPending}
+                  className="mt-6 w-full py-6 text-lg"
+                >
+                  {isPending ? 'Signing In...' : 'Sign In'}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
         {/* Error */}
         <div className="mt-8 min-h-[56px]">
           {error && (
