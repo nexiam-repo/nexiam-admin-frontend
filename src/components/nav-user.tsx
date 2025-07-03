@@ -7,10 +7,9 @@ import {
   CreditCard,
   LogOut,
 } from 'lucide-react';
-import { useSession } from 'next-auth/react';
-import { memo, useState } from 'react';
+import { getSession, signOut } from 'next-auth/react';
+import { memo, useEffect, useState } from 'react';
 
-import { signOutAction } from '@/app/actions/sign-out'; // adjust if needed
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,24 +36,32 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
-
+type UserProfile = {
+  name: string;
+  email: string;
+  avatar: string;
+};
 function NavUserComponent() {
   const { isMobile } = useSidebar();
-  const { data: session } = useSession();
   const [openLogout, setOpenLogout] = useState(false);
 
-  const user = session?.user
-    ? {
-        name: session.user.name,
-        email: session.user.email,
-        avatar: session.user.image || '/default-avatar.png', // fallback
+  const [user, setUser] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    getSession().then((session) => {
+      if (session?.user) {
+        setUser({
+          name: session.user.attributes?.name ?? '',
+          email: session.user.email ?? '',
+          avatar: session.user.attributes?.picture || '/default-avatar.png',
+        });
       }
-    : null;
+    });
+  }, []);
 
   // Handles actual sign out
   const handleSignOut = async () => {
-    const logoutUrl = await signOutAction();
-    window.location.href = logoutUrl;
+    signOut({ callbackUrl: '/sign-in' });
   };
 
   return (

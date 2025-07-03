@@ -15,13 +15,13 @@ export const api = ky.create({
           // SSR: extract cookies from Next.js context
           const { auth } = await import('./auth');
           const session = await auth();
-          token = session?.user?.id_token;
+          token = session?.user?.idToken;
         } else {
           BProgress.start();
           // Client: fetch from Amplify auth
           const { getSession } = await import('next-auth/react');
           const session = await getSession();
-          token = session?.user?.id_token;
+          token = session?.user?.idToken;
         }
         if (token) {
           request.headers.set('Authorization', `Bearer ${token}`);

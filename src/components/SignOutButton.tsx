@@ -2,13 +2,8 @@
 import { DropdownMenuItem } from '@radix-ui/react-dropdown-menu';
 import { LogOut } from 'lucide-react';
 
-import { signOutAction } from '@/app/actions/sign-out';
-
 export function SignOutMenuItem() {
-  const handleSignOut = async () => {
-    const logoutUrl = await signOutAction();
-    window.location.href = logoutUrl;
-  };
+  const handleSignOut = async () => {};
 
   return (
     <DropdownMenuItem

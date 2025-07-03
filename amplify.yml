@@ -25,9 +25,8 @@ frontend:
         - apt-get update && apt-get install -y awscli
         - echo "Fetching secrets from SSM..."
         - echo "AUTH_SECRET=$(aws ssm get-parameter --name "/nexiam/frontend/admin/AUTH_SECRET" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
-        - echo "AUTH_COGNITO_ID=$(aws ssm get-parameter --name "/nexiam/frontend/admin/AUTH_COGNITO_ID" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
-        - echo "AUTH_COGNITO_SECRET=$(aws ssm get-parameter --name "/nexiam/frontend/admin/AUTH_COGNITO_SECRET" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
-        - echo "AUTH_COGNITO_ISSUER=$(aws ssm get-parameter --name "/nexiam/frontend/admin/AUTH_COGNITO_ISSUER" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
+        - echo "COGNITO_USER_POOL_ID=$(aws ssm get-parameter --name "/nexiam/frontend/common/COGNITO_USERPOOL_ID" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
+        - echo "COGNITO_USER_POOL_CLIENT_ID=$(aws ssm get-parameter --name "/nexiam/frontend/admin/COGNITO_USERPOOL_CLIENT_ID" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
     build:
       commands:
         - echo "Starting build process..."

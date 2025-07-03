@@ -1,25 +1,32 @@
-// eslint-disable-next-line unused-imports/no-unused-imports
-import NextAuth from 'next-auth';
+// // eslint-disable-next-line unused-imports/no-unused-imports
+import type { DefaultSession } from 'next-auth';
 
 declare module 'next-auth' {
-  interface User {
-    id_token?: string;
-    access_token?: string;
-    refresh_token?: string;
-    // Add any other Cognito attributes here
-    [key: string]: any;
-  }
   interface Session {
-    user?: User;
+    accessToken?: string;
+    refreshToken?: string;
+    idToken?: string;
+    groups?: string[];
+    user: {
+      id: string;
+      attributes?: Record<string, string>;
+    } & DefaultSession['user'];
+  }
+
+  interface User {
+    accessToken?: string;
+    refreshToken?: string;
+    idToken?: string;
+    groups?: string[];
+    attributes?: Record<string, string>;
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT {
-    id_token?: string;
-    access_token?: string;
-    refresh_token?: string;
-    // Add any other Cognito attributes here
-    [key: string]: any;
+    accessToken?: string;
+    refreshToken?: string;
+    idToken?: string;
+    groups?: string[];
   }
 }
