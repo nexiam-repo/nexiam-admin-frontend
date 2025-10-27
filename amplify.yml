@@ -22,7 +22,7 @@ frontend:
             echo "→ PROD build: keeping .env.production as-is"
           fi
         - echo "Installing aws cli ..."
-        - apt-get update && apt-get install -y awscli
+        # - apt-get update && apt-get install -y awscli
         - echo "Fetching secrets from SSM..."
         - echo "AUTH_SECRET=$(aws ssm get-parameter --name "/nexiam/frontend/admin/AUTH_SECRET" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
         - echo "COGNITO_USER_POOL_ID=$(aws ssm get-parameter --name "/nexiam/frontend/common/COGNITO_USERPOOL_ID" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
