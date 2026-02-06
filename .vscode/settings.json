@@ -1,0 +1,18 @@
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.biome": "always",
+    "source.organizeImports.biome": "always"
+  },
+  "[javascript][typescript][javascriptreact][typescriptreact][json][jsonc]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+
+  "[yaml][toml][graphql][markdown][dockerfile]": {
+    "editor.defaultFormatter": "dprint.dprint"
+  },
+  // Ensure Dockerfile variants are detected
+  "files.associations": {
+    "Dockerfile*": "dockerfile"
+  }
+}

@@ -1,1 +1,6 @@
-npx lint-staged
+# .husky/pre-commit
+
+export DPRINT_INSTALL="$HOME/.dprint"
+export PATH="$DPRINT_INSTALL/bin:$PATH"
+
+bunx lint-staged

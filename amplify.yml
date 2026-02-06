@@ -5,32 +5,39 @@ frontend:
       commands:
         - echo "NODE_ENV is set to $NODE_ENV"
         - node --version
-        - echo "Installing corepack and pnpm..."
-        - npm install --global corepack@latest
-        - corepack enable
-        - corepack prepare pnpm@latest-10 --activate
-        - pnpm config set store-dir ~/.pnpm-store
-        - pnpm store path
-        - pnpm install --frozen-lockfile
+        - echo "Installing bun..."
+        - curl -fsSL https://bun.sh/install | bash
+        - export BUN_INSTALL="$HOME/.bun"
+        - export PATH="$BUN_INSTALL/bin:$PATH"
+        - bun --version
+        - bun install --frozen-lockfile
         # if we're in dev, swap .env.production for .env.development
         - echo "ENV is '$ENV'"
         - |
-          if [ "$ENV" = "dev" ]; then
-            echo "→ DEV build: copying .env.development → .env.production"
-            cp .env.development .env.production
-          else
-            echo "→ PROD build: keeping .env.production as-is"
-          fi
+            if [ "$ENV" = "dev" ]; then
+              echo "→ DEV build: copying .env.development → .env.production"
+              cp .env.development .env.production
+            else
+              echo "→ PROD build: keeping .env.production as-is"
+            fi
         - echo "Installing aws cli ..."
         # - apt-get update && apt-get install -y awscli
         - echo "Fetching secrets from SSM..."
-        - echo "AUTH_SECRET=$(aws ssm get-parameter --name "/nexiam/frontend/admin/AUTH_SECRET" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
-        - echo "COGNITO_USER_POOL_ID=$(aws ssm get-parameter --name "/nexiam/frontend/common/COGNITO_USERPOOL_ID" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
-        - echo "COGNITO_USER_POOL_CLIENT_ID=$(aws ssm get-parameter --name "/nexiam/frontend/admin/COGNITO_USERPOOL_CLIENT_ID" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
+        #- echo "AUTH_SECRET=$(aws ssm get-parameter --name "/nexiam/frontend/admin/AUTH_SECRET" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
+        #- echo "COGNITO_USER_POOL_ID=$(aws ssm get-parameter --name "/nexiam/frontend/common/COGNITO_USERPOOL_ID" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
+        #- echo "COGNITO_USER_POOL_CLIENT_ID=$(aws ssm get-parameter --name "/nexiam/frontend/admin/COGNITO_USERPOOL_CLIENT_ID" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
+        - echo "DATABASE_URL=$(aws ssm get-parameter --name "/nexiam/frontend/admin/DATABASE_URL" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
+        - echo "PAYLOAD_SECRET=$(aws ssm get-parameter --name "/nexiam/frontend/admin/PAYLOAD_SECRET" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
+        - echo "Running Payload CMS database migrations..."
+        - export BUN_INSTALL="$HOME/.bun"
+        - export PATH="$BUN_INSTALL/bin:$PATH"
+        - bun run payload migrate
     build:
       commands:
         - echo "Starting build process..."
-        - pnpm run build
+        - export BUN_INSTALL="$HOME/.bun"
+        - export PATH="$BUN_INSTALL/bin:$PATH"
+        - bun run build
         - echo "Build completed successfully."
     postBuild:
       commands:
@@ -41,4 +48,5 @@ frontend:
       - "**/*"
   cache:
     paths:
-      - ".pnpm-store/**/*"
+      - "$HOME/.bun/install/cache/**/*"
+      - "node_modules/**/*"
