@@ -17,14 +17,12 @@ import type { Payload } from "payload";
 export const seedDefaultApiUsers = async (payload: Payload) => {
 	const apiUsersToSeed = [
 		{
-			email: "api-landing-page@nexiam.net",
 			name: "Landing Page - Marketing",
 			description: "API user for landing page (nexiam.net) to access blog posts and CMS content",
 			enableAPIKey: true,
 			allowedOrigins: [{ origin: "https://nexiam.net" }, { origin: "https://www.nexiam.net" }],
 		},
 		{
-			email: "api-nexhub@nexiam.net",
 			name: "Nexhub - SaaS App",
 			description: "API user for Nexhub SaaS application to access CMS content",
 			enableAPIKey: true,
@@ -36,27 +34,37 @@ export const seedDefaultApiUsers = async (payload: Payload) => {
 
 	for (const userData of apiUsersToSeed) {
 		try {
-			// Try to create the user - if it already exists, it will fail with unique constraint
+			// Check if user already exists by name
+			const existingUser = await payload.find({
+				collection: "payload-api-users",
+				where: {
+					name: {
+						equals: userData.name,
+					},
+				},
+				limit: 1,
+			});
+
+			if (existingUser.docs.length > 0) {
+				console.log(`⏭️  Skipped: ${userData.name} (already exists)`);
+				continue;
+			}
+
+			// Create the user
 			await payload.create({
 				collection: "payload-api-users",
 				data: userData,
 			});
 
 			console.log(`✅ Created API user: ${userData.name}`);
-			console.log(`   Email: ${userData.email}`);
 			console.log(
 				`   ⚠️  NEXT STEP: Generate API key manually in Admin Panel at /admin/collections/payload-api-users`,
 			);
 			console.log("");
 		} catch (error: unknown) {
-			// If error is due to duplicate email (user already exists), skip silently
+			// Log any errors
 			const errorMessage = error instanceof Error ? error.message : String(error);
-			if (errorMessage.includes("duplicate") || errorMessage.includes("unique")) {
-				console.log(`⏭️  Skipped: ${userData.name} (already exists)`);
-			} else {
-				// Log other errors
-				console.error(`❌ Failed to create API user ${userData.name}:`, errorMessage);
-			}
+			console.error(`❌ Failed to create API user ${userData.name}:`, errorMessage);
 		}
 	}
 
