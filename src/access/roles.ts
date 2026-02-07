@@ -6,8 +6,9 @@ import type { User } from "@/payload-types";
 type AdminPanelAccess = (args: { req: AccessArgs<User>["req"] }) => boolean;
 
 // Type guard to check if user is a regular User (not PayloadApiUser)
+// PayloadApiUser doesn't have 'roles', so we check for that property
 const isRegularUser = (user: unknown): user is User => {
-	return (user as User | null)?.collection === "users";
+	return user !== null && user !== undefined && "roles" in (user as object);
 };
 
 export const isSuperAdmin: Access<User> = ({ req: { user } }) => {
