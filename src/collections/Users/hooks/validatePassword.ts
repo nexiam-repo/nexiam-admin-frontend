@@ -8,19 +8,21 @@ import { ValidationError } from "payload";
  * - Contains uppercase letter
  * - Contains lowercase letter
  * - Contains number
- * - Contains special character (@$!%*?&)
+ * - Contains special character (e.g., @$!%*?&.-_+#)
  */
 export const validatePassword: CollectionBeforeValidateHook = ({ data }) => {
 	// Only validate if a password is being set (creation or update)
 	if (data?.password) {
-		const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/;
+		// Allow common special characters: @$!%*?&.-_+#()[]{}:;"'<>,/\|~
+		const regex =
+			/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.\-_+#()[\]{}:;"'<>,/\\|~])[A-Za-z\d@$!%*?&.\-_+#()[\]{}:;"'<>,/\\|~]{12,}$/;
 
 		if (!regex.test(data.password)) {
 			throw new ValidationError({
 				errors: [
 					{
 						message:
-							"Password must be at least 12 characters and include an uppercase letter, a number, and a special character.",
+							"Password must be at least 12 characters and include: uppercase, lowercase, number, and special character (e.g., @$!%*?&.-_+#)",
 						path: "password",
 					},
 				],
