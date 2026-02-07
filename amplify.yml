@@ -44,5 +44,6 @@ frontend:
       - "**/*"
   cache:
     paths:
-      - "$HOME/.bun/install/cache/**/*"
       - "node_modules/**/*"
+      - ".next/cache/**/*"
+      - "$HOME/.bun/install/cache/**/*"
