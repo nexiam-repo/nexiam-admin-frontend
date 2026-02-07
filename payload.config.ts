@@ -32,6 +32,14 @@ export default buildConfig({
 	// Secret key for JWT encryption (min 32 characters)
 	secret: process.env.PAYLOAD_SECRET || "",
 
+	// CORS configuration for API access from external domains
+	cors: [
+		"https://nexiam.net",
+		"https://www.nexiam.net",
+		"https://nexhub.nexiam.net", // Add your Nexhub SaaS domain
+		...(process.env.NODE_ENV === "development" ? ["http://localhost:3000"] : []),
+	],
+
 	// Neon DB Postgres adapter
 	db: postgresAdapter({
 		pool: {

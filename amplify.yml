@@ -5,11 +5,14 @@ frontend:
       commands:
         - echo "NODE_ENV is set to $NODE_ENV"
         - node --version
-        - echo "Installing bun..."
-        - curl -fsSL https://bun.sh/install | bash
+        - echo "Install bun (version from package.json)..."
+        - export BUN_VERSION=$(node -p "require('./package.json').packageManager.split('@')[1]")
+        - echo "Installing bun v$BUN_VERSION..."
+        - curl -fsSL https://bun.sh/install | bash -s "bun-v$BUN_VERSION"
         - export BUN_INSTALL="$HOME/.bun"
         - export PATH="$BUN_INSTALL/bin:$PATH"
         - bun --version
+        - echo "Installing dependencies..."
         - bun install --frozen-lockfile
         # if we're in dev, swap .env.production for .env.development
         - echo "ENV is '$ENV'"
@@ -22,17 +25,19 @@ frontend:
             fi
         - echo "Installing aws cli ..."
         # - apt-get update && apt-get install -y awscli
-        - echo "Fetching secrets from SSM..."
-        #- echo "AUTH_SECRET=$(aws ssm get-parameter --name "/nexiam/frontend/admin/AUTH_SECRET" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
-        #- echo "COGNITO_USER_POOL_ID=$(aws ssm get-parameter --name "/nexiam/frontend/common/COGNITO_USERPOOL_ID" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
-        #- echo "COGNITO_USER_POOL_CLIENT_ID=$(aws ssm get-parameter --name "/nexiam/frontend/admin/COGNITO_USERPOOL_CLIENT_ID" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
-        - echo "DATABASE_URL=$(aws ssm get-parameter --name "/nexiam/frontend/admin/DATABASE_URL" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
-        - echo "PAYLOAD_SECRET=$(aws ssm get-parameter --name "/nexiam/frontend/admin/PAYLOAD_SECRET" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
+        - |
+            set -euo pipefail
+            echo "Fetching secrets from SSM..."
+            printf "DATABASE_URL=%s\n" "$(aws ssm get-parameter --name "/nexiam/frontend/admin/DATABASE_URL" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
+            printf "PAYLOAD_SECRET=%s\n" "$(aws ssm get-parameter --name "/nexiam/frontend/admin/PAYLOAD_SECRET" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
+            echo "Secrets fetched successfully."
         - echo "Running Payload CMS database migrations..."
-        - bun run payload migrate
+        - set -euo pipefail && bun run payload migrate
     build:
       commands:
         - echo "Starting build process..."
+        - export BUN_INSTALL="$HOME/.bun"
+        - export PATH="$BUN_INSTALL/bin:$PATH"
         - bun run build
         - echo "Build completed successfully."
     postBuild:
@@ -44,6 +49,6 @@ frontend:
       - "**/*"
   cache:
     paths:
-      - "node_modules/**/*"
-      - ".next/cache/**/*"
-      - "$HOME/.bun/install/cache/**/*"
+      - "node_modules/**/*" # Installed dependencies
+      - ".next/cache/**/*" # Next.js build cache (webpack, pages)
+      - "$HOME/.bun/install/cache/**/*" # Bun's global package cache
