@@ -17,7 +17,7 @@ import type { Payload } from "payload";
 export const seedDefaultApiUsers = async (payload: Payload) => {
 	const apiUsersToSeed = [
 		{
-			name: "Landing Page - Marketing",
+			name: "Nexiam - Landing Page",
 			description: "API user for landing page (nexiam.net) to access blog posts and CMS content",
 			enableAPIKey: true,
 			allowedOrigins: [{ origin: "https://nexiam.net" }, { origin: "https://www.nexiam.net" }],
