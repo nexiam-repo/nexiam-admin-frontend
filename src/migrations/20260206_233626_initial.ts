@@ -2,6 +2,7 @@ import { type MigrateDownArgs, type MigrateUpArgs, sql } from "@payloadcms/db-po
 
 export async function up({ db }: MigrateUpArgs): Promise<void> {
 	await db.execute(sql`
+   CREATE SCHEMA IF NOT EXISTS "payload";
    CREATE TYPE "payload"."_locales" AS ENUM('en');
   CREATE TYPE "payload"."enum_users_roles" AS ENUM('super-admin', 'admin', 'editor');
   CREATE TYPE "payload"."enum_blog_posts_status" AS ENUM('draft', 'published');
@@ -549,5 +550,6 @@ export async function down({ db }: MigrateDownArgs): Promise<void> {
   DROP TYPE "payload"."enum_contact_promote_source";
   DROP TYPE "payload"."enum_contact_promote_status";
   DROP TYPE "payload"."enum_waiting_list_source";
-  DROP TYPE "payload"."enum_waiting_list_status";`);
+  DROP TYPE "payload"."enum_waiting_list_status";
+  DROP SCHEMA IF EXISTS "payload" CASCADE;`);
 }

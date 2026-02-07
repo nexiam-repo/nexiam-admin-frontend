@@ -29,14 +29,10 @@ frontend:
         - echo "DATABASE_URL=$(aws ssm get-parameter --name "/nexiam/frontend/admin/DATABASE_URL" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
         - echo "PAYLOAD_SECRET=$(aws ssm get-parameter --name "/nexiam/frontend/admin/PAYLOAD_SECRET" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
         - echo "Running Payload CMS database migrations..."
-        - export BUN_INSTALL="$HOME/.bun"
-        - export PATH="$BUN_INSTALL/bin:$PATH"
         - bun run payload migrate
     build:
       commands:
         - echo "Starting build process..."
-        - export BUN_INSTALL="$HOME/.bun"
-        - export PATH="$BUN_INSTALL/bin:$PATH"
         - bun run build
         - echo "Build completed successfully."
     postBuild:
