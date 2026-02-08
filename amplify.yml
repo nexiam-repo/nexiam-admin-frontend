@@ -28,6 +28,11 @@ frontend:
         - |
             set -euo pipefail
             echo "Fetching secrets from SSM..."
+            # Remove existing keys so appended values take effect
+            sed -i '/^DATABASE_URL=/d' .env.production
+            sed -i '/^PAYLOAD_SECRET=/d' .env.production
+            # Append secrets from SSM with quoted values
+            echo "" >> .env.production
             printf "DATABASE_URL=%s\n" "$(aws ssm get-parameter --name "/nexiam/frontend/admin/DATABASE_URL" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
             printf "PAYLOAD_SECRET=%s\n" "$(aws ssm get-parameter --name "/nexiam/frontend/admin/PAYLOAD_SECRET" --with-decryption --query "Parameter.Value" --output text)" >> .env.production
             echo "Secrets fetched successfully."
