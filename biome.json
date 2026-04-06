@@ -17,6 +17,7 @@
       "!!build",
       "!!*.lockb",
       "!!bun.lockb",
+      "!!src/components/ui",
       "!!src/app/(payload)/admin/importMap.js"
     ]
   },
