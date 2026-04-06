@@ -100,7 +100,7 @@ export const EmailTemplates: GlobalConfig = {
 							type: "email",
 							label: "From Email",
 							defaultValue: () => {
-								const env = process.env.ENVIRONMENT || "dev";
+								const env = process.env.ENV || "dev";
 								if (env === "prod" || env === "production") {
 									return "support@nexiam.net";
 								}
@@ -195,7 +195,7 @@ export const EmailTemplates: GlobalConfig = {
 							type: "email",
 							label: "From Email",
 							defaultValue: () => {
-								const env = process.env.ENVIRONMENT || "dev";
+								const env = process.env.ENV || "dev";
 								if (env === "prod" || env === "production") {
 									return "support@nexiam.net";
 								}
