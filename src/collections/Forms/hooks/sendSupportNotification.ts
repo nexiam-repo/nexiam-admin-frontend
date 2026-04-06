@@ -79,7 +79,7 @@ export const createSupportNotificationHook =
 				.join("\n")}`;
 
 			// Determine from email based on environment (must be verified in SES)
-			const env = process.env.ENVIRONMENT || "dev";
+			const env = process.env.ENV || "dev";
 			const fromEmail =
 				process.env.FROM_EMAIL ||
 				(env === "prod" || env === "production"
