@@ -82,14 +82,18 @@ jobs:
       # sharp's install script only downloads the current platform's binary,
       # so without this step the bundle would ship the x64 variant and the
       # Lambda would crash with "invalid ELF header" at cold start.
-      # --no-save keeps package.json clean; @img/sharp-linux-arm64 lands in
-      # node_modules/@img/ where sharp looks for the platform variant.
-      # --legacy-peer-deps because npm's strict resolver trips on Payload's
-      # next@^15 peer vs our next@16 (Bun's resolver is looser and accepted
-      # this during the earlier `bun install`). We're only dropping a binary
-      # into @img/, so skipping peer re-resolution is safe here.
+      #
+      # Flag notes:
+      #   --cpu=arm64 --os=linux  spoof the target platform so npm doesn't
+      #                           reject the cross-arch binary (EBADPLATFORM).
+      #   --no-save               keeps package.json clean; the package lands
+      #                           in node_modules/@img/ where sharp looks.
+      #   --legacy-peer-deps      npm's strict resolver trips on Payload's
+      #                           next@^15 peer vs our next@16. Bun accepted
+      #                           this during the earlier install; we're only
+      #                           dropping a binary, not altering the tree.
       - name: Install arm64 sharp binary for Lambda
-        run: npm install --no-save --legacy-peer-deps @img/sharp-linux-arm64
+        run: npm install --cpu=arm64 --os=linux --no-save --legacy-peer-deps @img/sharp-linux-arm64
 
       # Stage 1: OIDC into the tools account. GitHub OIDC trust lives there.
       - name: Configure AWS credentials (tools account)
