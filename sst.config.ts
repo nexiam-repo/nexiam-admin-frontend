@@ -128,7 +128,10 @@ export default $config({
 				NEXT_PUBLIC_API_URL: config.apiUrl,
 				FROM_EMAIL: config.fromEmail,
 				FROM_NAME: config.fromName,
-				AWS_REGION: "eu-central-1",
+				// AWS_REGION is reserved by the Lambda runtime and auto-set to the
+				// function's region — passing it here fails CreateFunction with
+				// InvalidParameterValueException. src/lib/email.ts falls back
+				// correctly because Lambda provides it.
 				DATABASE_URL: databaseUrl,
 				PAYLOAD_SECRET: payloadSecret,
 			},
