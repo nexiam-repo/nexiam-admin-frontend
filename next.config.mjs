@@ -26,19 +26,16 @@ const nextConfig = {
 	// Payload CMS pulls `ws`, `undici`, and `sharp` in at runtime (Postgres driver,
 	// fetch, image processing). Next's default server bundling tree-shakes them
 	// because nothing imports them statically → Lambda cold-start throws
-	// MODULE_NOT_FOUND. Force-externalize and explicitly include them in the
-	// output-file-tracing manifest.
+	// MODULE_NOT_FOUND. Force-externalize and explicitly include ws+undici in
+	// the output-file-tracing manifest.
 	//
-	// `sharp` also ships its platform binary as optional deps under @img/*;
-	// tracing must pick them up too.
+	// sharp is handled differently: OpenNext hardcodes sharp + @img in its
+	// EXCLUDED_PACKAGES list (copyTracedFiles.js) so tracing-includes here
+	// would be silently dropped. Instead, open-next.config.ts tells OpenNext
+	// to `npm install sharp --arch=arm64` directly into the server bundle.
 	serverExternalPackages: ["ws", "undici", "sharp"],
 	outputFileTracingIncludes: {
-		"*": [
-			"node_modules/ws/**/*",
-			"node_modules/undici/**/*",
-			"node_modules/sharp/**/*",
-			"node_modules/@img/**/*",
-		],
+		"*": ["node_modules/ws/**/*", "node_modules/undici/**/*"],
 	},
 	// Payload ships TS source with .cjs/.mjs extension aliases; without this
 	// webpack can't resolve its internal imports during Next's server build.
