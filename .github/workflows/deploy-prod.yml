@@ -1,0 +1,29 @@
+name: Deploy Prod
+
+# Deploys to admin.nexiam.net in the prod AWS account.
+# Triggered on push to prod; workflow_dispatch is kept for manual redeploys
+# (e.g. hotfix without a code change, or re-running after a transient failure).
+#
+# Safety: `environment: prod` is a GitHub Environment. Configure
+# protection rules (required reviewers, wait timer, branch restriction) in
+# repo Settings → Environments → prod to gate deploys.
+
+on:
+  push:
+    branches: [prod]
+    paths-ignore:
+      - "**.md"
+      - ".claude/**"
+      - "LICENSE"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/_deploy.yml
+    with:
+      stage: prod
+      environment: prod
+      deploy_role_arn: arn:aws:iam::235494805205:role/GitHubActionsFrontendAdminDeployRole
+    permissions:
+      id-token: write
+      contents: read

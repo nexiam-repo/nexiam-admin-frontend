@@ -1,0 +1,24 @@
+name: Deploy Dev
+
+# Deploys to admin.dev.nexiam.net in the dev AWS account.
+# Triggered on push to dev; workflow_dispatch is kept for manual redeploys.
+
+on:
+  push:
+    branches: [dev]
+    paths-ignore:
+      - "**.md"
+      - ".claude/**"
+      - "LICENSE"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/_deploy.yml
+    with:
+      stage: dev
+      environment: dev
+      deploy_role_arn: arn:aws:iam::677276081339:role/GitHubActionsFrontendAdminDeployRole
+    permissions:
+      id-token: write
+      contents: read

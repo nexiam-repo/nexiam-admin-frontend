@@ -23,7 +23,27 @@ const nextConfig = {
 	turbopack: {
 		root,
 	},
+	// Payload CMS pulls `ws` and `undici` in at runtime (Postgres driver + fetch).
+	// Next's default server bundling tree-shakes them because nothing imports them
+	// statically → Lambda cold-start throws MODULE_NOT_FOUND. Force-externalize and
+	// explicitly include them in the output-file-tracing manifest.
+	serverExternalPackages: ["ws", "undici"],
+	outputFileTracingIncludes: {
+		"*": ["node_modules/ws/**/*", "node_modules/undici/**/*"],
+	},
+	// Payload ships TS source with .cjs/.mjs extension aliases; without this
+	// webpack can't resolve its internal imports during Next's server build.
+	webpack: (webpackConfig) => {
+		webpackConfig.resolve.extensionAlias = {
+			".cjs": [".cts", ".cjs"],
+			".js": [".ts", ".tsx", ".js", ".jsx"],
+			".mjs": [".mts", ".mjs"],
+		};
+		return webpackConfig;
+	},
 };
 
-// Compose plugins: nextConfig → withPayload
-export default withPayload(nextConfig);
+// Compose plugins: nextConfig → withPayload.
+// `devBundleServerPackages: false` stops Payload from re-bundling server deps
+// during `next dev` (breaks HMR). Safe everywhere — no-op in prod.
+export default withPayload(nextConfig, { devBundleServerPackages: false });

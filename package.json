@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "packageManager": "bun@1.3.8",
+  "packageManager": "bun@1.3.11",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -12,13 +12,21 @@
     "start": "next start",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
+    "ci:check": "biome ci .",
     "format": "biome format --write .",
     "prepare": "husky",
     "dev:env": "cross-env NODE_ENV=development next dev",
     "prod:build": "cross-env NODE_ENV=production next build",
     "generate:importmap": "NODE_OPTIONS=--no-deprecation bun payload generate:importmap",
     "generate:types": "NODE_OPTIONS=--no-deprecation bun payload generate:types",
-    "payload": "NODE_OPTIONS=--no-deprecation payload"
+    "payload": "NODE_OPTIONS=--no-deprecation payload",
+    "sst:dev": "sst dev",
+    "sst:deploy": "sst deploy",
+    "sst:deploy:dev": "sst deploy --stage dev",
+    "sst:deploy:prod": "sst deploy --stage prod",
+    "sst:deploy:preview": "sst deploy --stage preview",
+    "sst:remove:preview": "sst remove --stage preview",
+    "sst:console": "sst console"
   },
   "dependencies": {
     "@aws-sdk/client-sesv2": "^3.966.0",
@@ -77,6 +85,8 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "postcss": "^8.5.6",
+    "sst": "4.8.0",
+    "@opennextjs/aws": "3.10.2",
     "tailwindcss": "^4.1.18",
     "tw-animate-css": "^1.4.0",
     "typescript": "^5.9.3"

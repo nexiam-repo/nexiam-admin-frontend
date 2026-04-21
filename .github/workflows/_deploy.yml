@@ -1,0 +1,124 @@
+name: _deploy
+
+# Reusable deploy workflow for nexiam-admin-frontend.
+#
+# Differences from the landing workflow (which this was cloned from):
+#   1. Fetches DATABASE_URL + PAYLOAD_SECRET from /common/* (not just
+#      /frontend/admin/*). Masked before being written to $GITHUB_ENV.
+#   2. Runs `bun run payload migrate` BEFORE `sst deploy`. Payload's Postgres
+#      `payload` schema must be in sync with the code before new Lambda starts
+#      taking traffic. `push` is off (NODE_ENV=production) so migrations are
+#      the only way schema changes land.
+#   3. DATABASE_URL + PAYLOAD_SECRET are injected as Lambda env vars by
+#      sst.config.ts because Payload's buildConfig() reads them at module-init,
+#      before any of our code runs — the extension pattern can't wrap that.
+#
+# App-level runtime secrets (added later via src/lib/secrets.ts) are NOT
+# fetched here — they stay in SSM and are read at runtime by the Lambda via
+# the AWS Parameters and Secrets Extension. See .claude/rules/secrets-handling.md.
+
+on:
+  workflow_call:
+    inputs:
+      stage:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      aws_region:
+        required: false
+        type: string
+        default: eu-central-1
+      deploy_role_arn:
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  AWS_REGION: ${{ inputs.aws_region }}
+  # Force optimized production build for both dev and prod stages. Next.js
+  # reads NODE_ENV during `next build` to strip dev warnings, minify, and
+  # tree-shake. Payload reads it to decide `push` vs migrations (false here).
+  NODE_ENV: production
+  # Tools account hosts the GitHub OIDC provider + per-app CI role.
+  # Defined in nexiam-infra-aws/infra-live-v1/tools/aws/eu-central-1/cicd.
+  TOOLS_ROLE_ARN: arn:aws:iam::329599635863:role/GitHubActionsFrontendAdminCIRole
+
+jobs:
+  deploy:
+    name: Build & Deploy (${{ inputs.stage }})
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Runner info
+        run: |
+          echo "CPU: $(nproc) cores"
+          echo "Arch: $(uname -m)"
+          echo "RAM: $(free -h | awk '/Mem:/ {print $2}')"
+          echo "OS: $(uname -s) $(uname -r)"
+
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.11"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      # Stage 1: OIDC into the tools account. GitHub OIDC trust lives there.
+      - name: Configure AWS credentials (tools account)
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ env.TOOLS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # Stage 2: role-chain into the target account. SSM, Lambda, Route53,
+      # SES identity all live here. Grants from cicd terragrunt stack:
+      # ssm:GetParameter on /frontend/admin/* + /common/DATABASE_URL +
+      # /common/PAYLOAD_SECRET + AdministratorAccess.
+      - name: Configure AWS credentials (${{ inputs.stage }} account)
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ inputs.deploy_role_arn }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-chaining: true
+
+      # Payload framework secrets. These must be in $GITHUB_ENV (not just the
+      # current shell) so downstream steps (migrate + sst deploy) see them.
+      # ::add-mask:: ensures GHA scrubs them from any log line.
+      - name: Fetch Payload secrets from SSM
+        run: |
+          set -euo pipefail
+          DATABASE_URL=$(aws ssm get-parameter \
+            --name "/common/DATABASE_URL" \
+            --with-decryption --query "Parameter.Value" --output text)
+          echo "::add-mask::$DATABASE_URL"
+          echo "DATABASE_URL=$DATABASE_URL" >> "$GITHUB_ENV"
+
+          PAYLOAD_SECRET=$(aws ssm get-parameter \
+            --name "/common/PAYLOAD_SECRET" \
+            --with-decryption --query "Parameter.Value" --output text)
+          echo "::add-mask::$PAYLOAD_SECRET"
+          echo "PAYLOAD_SECRET=$PAYLOAD_SECRET" >> "$GITHUB_ENV"
+
+      # Migrations run BEFORE sst deploy. If they fail, CI fails and the old
+      # Lambda keeps serving traffic — safer than migrating at cold start.
+      # Payload's `push` is off because NODE_ENV=production (above).
+      - name: Run Payload migrations
+        run: bun run payload migrate
+
+      - name: Deploy to AWS via SST
+        run: bunx sst deploy --stage ${{ inputs.stage }}
