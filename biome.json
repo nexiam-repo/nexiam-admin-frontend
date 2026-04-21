@@ -15,10 +15,17 @@
       "!!out",
       "!!dist",
       "!!build",
+      "!!coverage",
       "!!*.lockb",
       "!!bun.lockb",
-      "!!src/components/ui",
-      "!!src/app/(payload)/admin/importMap.js"
+      "!!.sst",
+      "!!.open-next",
+      "!!sst-env.d.ts",
+      "!!**/*.{json,jsonc,yaml,yml,toml,gql,graphql}",
+      "!!**/Dockerfile",
+      "!!**/Dockerfile.*",
+      "!src/components/ui",
+      "!src/app/(payload)/admin/importMap.js"
     ]
   },
   "formatter": {
