@@ -72,7 +72,7 @@ export async function sendEmail({
  * Returns the compiled HTML or throws an error
  */
 export async function compileMjml(mjml: string): Promise<string> {
-	if (!mjml || !mjml.includes("<mjml>")) {
+	if (!mjml?.includes("<mjml>")) {
 		throw new Error("Invalid MJML: must contain <mjml> tags");
 	}
 

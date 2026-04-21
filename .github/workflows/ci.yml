@@ -42,7 +42,14 @@ jobs:
       # lint/format/organize-imports diagnostic. Stricter than `biome check`.
       # Use `bun run` so the local pinned biome version is used.
       - name: Biome check
-        run: bun run ci:check
+        run: bun run ci
+
+      # dprint owns JSON/JSONC/YAML/TOML/GraphQL/Dockerfile/Markdown (biome.json
+      # excludes those types via `!!`). The pre-commit hook runs dprint locally,
+      # but `--no-verify` and GitHub web-UI edits bypass that — this step is the
+      # server-side gate.
+      - name: dprint check
+        run: bun run fmt:data:check
 
   # TODO: enable when tests are wired up (post-launch). See header comment.
   # test:
