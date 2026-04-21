@@ -83,17 +83,17 @@ jobs:
       # so without this step the bundle would ship the x64 variant and the
       # Lambda would crash with "invalid ELF header" at cold start.
       #
-      # Flag notes:
-      #   --cpu=arm64 --os=linux  spoof the target platform so npm doesn't
-      #                           reject the cross-arch binary (EBADPLATFORM).
-      #   --no-save               keeps package.json clean; the package lands
-      #                           in node_modules/@img/ where sharp looks.
-      #   --legacy-peer-deps      npm's strict resolver trips on Payload's
-      #                           next@^15 peer vs our next@16. Bun accepted
-      #                           this during the earlier install; we're only
-      #                           dropping a binary, not altering the tree.
+      # `npm install @img/sharp-linux-arm64` refuses with EBADPLATFORM on x64
+      # hosts even with --cpu/--os flags (those only filter optional deps,
+      # they don't bypass the top-level package's engine check). Instead
+      # fetch the tarball via `npm view` + curl and extract into the path
+      # sharp probes at runtime (node_modules/@img/sharp-linux-arm64/).
       - name: Install arm64 sharp binary for Lambda
-        run: npm install --cpu=arm64 --os=linux --no-save --legacy-peer-deps @img/sharp-linux-arm64
+        run: |
+          set -euo pipefail
+          TARBALL=$(npm view @img/sharp-linux-arm64 dist.tarball)
+          mkdir -p node_modules/@img/sharp-linux-arm64
+          curl -sSL "$TARBALL" | tar -xz -C node_modules/@img/sharp-linux-arm64 --strip-components=1
 
       # Stage 1: OIDC into the tools account. GitHub OIDC trust lives there.
       - name: Configure AWS credentials (tools account)
