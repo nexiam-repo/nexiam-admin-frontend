@@ -8,5 +8,13 @@
 
 ## Lambda bundling for native/runtime deps
 
-- Keep `serverExternalPackages` + `outputFileTracingIncludes` in `next.config.mjs` for `ws`, `undici`, `sharp`, `@img/*`.
-- `sharp` ships platform-specific binaries via `@img/sharp-*` optional deps. CI runs x64 but Lambda is arm64 (Graviton), so `_deploy.yml` fetches the arm64 tarball directly (`npm view ... dist.tarball | curl | tar`) — `npm install --cpu=arm64` rejects cross-platform with EBADPLATFORM.
+- Use `serverExternalPackages` + `outputFileTracingIncludes` in `next.config.mjs` for `ws` and `undici` (tree-shaken because Payload `require()`s them dynamically).
+- **`sharp` must be installed via `open-next.config.ts`**, not traced. OpenNext's `copyTracedFiles.js` hardcodes `sharp` + `@img` in an `EXCLUDED_PACKAGES` list and strips them from every function except `image-optimization-function`. Tracing-includes for sharp are silently dropped.
+- Payload imports sharp at runtime (image resizing, media processing) so the default server Lambda also needs it. Pattern:
+  ```ts
+  // open-next.config.ts
+  export default {
+    default: { install: { packages: ["sharp@<pin>"], arch: "arm64", os: "linux", libc: "glibc" } },
+  } satisfies OpenNextConfig;
+  ```
+- Pin the sharp version to match `package.json` so build-time types and runtime agree.
