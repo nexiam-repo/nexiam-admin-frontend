@@ -26,6 +26,15 @@ const config = {
 			arch: "arm64",
 			os: "linux",
 			libc: "glibc",
+			// Lambda runtime is nodejs24 (see sst.config.ts) — keep --target in sync
+			// so sharp's prebuilt binary selection matches.
+			nodeVersion: "24",
+			// OpenNext emits `--arch=arm64`, which isn't an official npm flag; npm
+			// silently ignores it and falls back to the runner's native arch (x64)
+			// for optional-dep filtering, dropping @img/sharp-linux-arm64.
+			// `--cpu=arm64` is the documented flag, and `--include=optional` guards
+			// against project-level `omit=optional` config bleeding in.
+			additionalArgs: "--cpu=arm64 --include=optional",
 		},
 	},
 } satisfies OpenNextConfig;
