@@ -82,11 +82,13 @@ export default $config({
 		const domain = isProduction
 			? {
 					name: "admin.nexiam.net",
+					redirects: ["www.admin.nexiam.net"],
 					dns: sst.aws.dns(),
 				}
 			: isDev
 				? {
 						name: "admin.dev.nexiam.net",
+						redirects: ["www.admin.dev.nexiam.net"],
 						dns: sst.aws.dns(),
 					}
 				: undefined;
