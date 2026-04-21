@@ -78,6 +78,15 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      # GHA runner is x64 Linux but the Lambda runs on arm64 (Graviton).
+      # sharp's install script only downloads the current platform's binary,
+      # so without this step the bundle would ship the x64 variant and the
+      # Lambda would crash with "invalid ELF header" at cold start.
+      # --no-save keeps package.json clean; @img/sharp-linux-arm64 lands in
+      # node_modules/@img/ where sharp looks for the platform variant.
+      - name: Install arm64 sharp binary for Lambda
+        run: npm install --no-save @img/sharp-linux-arm64
+
       # Stage 1: OIDC into the tools account. GitHub OIDC trust lives there.
       - name: Configure AWS credentials (tools account)
         uses: aws-actions/configure-aws-credentials@v6

@@ -158,7 +158,7 @@ export default $config({
 				},
 			},
 
-			buildCommand: "npx --yes @opennextjs/aws@3.10.2 build",
+			buildCommand: "bun run build:opennext",
 		});
 	},
 });

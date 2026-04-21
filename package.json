@@ -20,6 +20,7 @@
     "generate:importmap": "NODE_OPTIONS=--no-deprecation bun payload generate:importmap",
     "generate:types": "NODE_OPTIONS=--no-deprecation bun payload generate:types",
     "payload": "NODE_OPTIONS=--no-deprecation payload",
+    "build:opennext": "open-next build",
     "sst:dev": "sst dev",
     "sst:deploy": "sst deploy",
     "sst:deploy:dev": "sst deploy --stage dev",
